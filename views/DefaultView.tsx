@@ -21,7 +21,7 @@ const DefaultView: React.FC<{
               alt="auth"
             />
           </Flex>
-          <Image style={{ filter: "blur(1px)" }} src="/auth.png" alt="auth" />
+          {/* <Image style={{ filter: "blur(1px)" }} src="/auth.png" alt="auth" /> */}
         </Flex>
       </Box>
       <Flex
@@ -32,7 +32,7 @@ const DefaultView: React.FC<{
         className="bg-secondary"
         alignItems={"center"}
       >
-        <Heading>Sign in</Heading>
+        {/* <Heading>Sign in</Heading> */}
         <Button
           minW="80%"
           paddingY="1.25em"

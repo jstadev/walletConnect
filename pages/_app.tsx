@@ -37,21 +37,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               gap="5"
               fontSize={"1.25em"}
             >
-              <div>Example App</div>
-              <Flex
-                padding="0.5em"
-                borderRadius="16px"
-                className="bg-secondary"
-                gap="2"
-              >
-                <Image
-                  width="1.5em"
-                  height="1.5em"
-                  src="/wc-bg.png"
-                  alt="WC"
-                ></Image>
-                <span>V{version}</span>
-              </Flex>
+            
             </Flex>
           </GridItem>
           <Flex justifyContent="center">
