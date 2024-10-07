@@ -1,5 +1,5 @@
 import { Box, useToast } from "@chakra-ui/react";
-import AuthClient, { generateNonce } from "@walletconnect/auth-client";
+import SignClient from "@walletconnect/sign-client";
 import { WalletConnectModal } from "@walletconnect/modal";
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
@@ -16,124 +16,91 @@ if (!projectId) {
 const modal = new WalletConnectModal({
   projectId,
   // walletIds: [
-  //   "427efc9169b13a348d98d34e40303546a3e7352d725c06b9356882a26773b1a3", // Your specified wallet ID
+  //   "427efc9169b13a348d98d34e40303546a3e7352d725c06b9356882a26773b1a3", // Multix wallet ID
   // ],
-  chains: ["eip155:1329", "polkadot:91b171bb158e2d3848fa23a9f1c25182"], // Specify your chain ID
-  themeMode: "dark", // Optional: 'dark' | 'light'
+  chains: ["polkadot:91b171bb158e2d3848fa23a9f1c25182"], // Polkadot mainnet
+  themeMode: "dark",
 });
 
 const Home: NextPage = () => {
-  const [client, setClient] = useState<AuthClient | null>(null);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [client, setClient] = useState<SignClient | null>(null);
   const [uri, setUri] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const toast = useToast();
 
-  const onSignIn = useCallback(() => {
+  const onConnect = useCallback(async () => {
     if (!client) return;
-    client
-      .request({
-        aud: window.location.href,
-        domain: window.location.hostname.split(".").slice(-2).join("."),
-        chainId: "eip155:1329", // Ensure this matches the chain ID in modal config
-        type: "eip4361",
-        nonce: generateNonce(),
-        statement: "Sign in with wallet.",
-      })
-      .then(({ uri }) => {
-        if (uri) {
-          setUri(uri);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        toast({
-          status: "error",
-          title: "Failed to initiate sign-in request",
-        });
+
+    const connectParams = {
+      requiredNamespaces: {
+        polkadot: {
+          chains: ["polkadot:91b171bb158e2d3848fa23a9f1c25182"],
+          methods: ["polkadot_signTransaction", "polkadot_signMessage"],
+          events: [],
+        },
+      },
+    };
+
+    try {
+      const { uri, approval } = await client.connect(connectParams);
+
+      if (uri) {
+        setUri(uri);
+      }
+
+      const session = await approval();
+      const accounts = session.namespaces.polkadot.accounts;
+      // accounts is an array like ['polkadot:91b171bb158e2d3848fa23a9f1c25182:ADDRESS']
+      const connectedAddress = accounts[0].split(":")[2];
+      setAddress(connectedAddress);
+    } catch (error) {
+      console.error(error);
+      toast({
+        status: "error",
+        title: "Failed to connect",
       });
-  }, [client, setUri, toast]);
+    }
+  }, [client, toast]);
 
   useEffect(() => {
-    AuthClient.init({
-      relayUrl:
-        process.env.NEXT_PUBLIC_RELAY_URL || "wss://relay.walletconnect.com",
-      projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
+    SignClient.init({
+      relayUrl: process.env.NEXT_PUBLIC_RELAY_URL || "wss://relay.walletconnect.com",
+      projectId,
       metadata: {
-        name: "react-dapp-auth",
-        description: "React Example Dapp for Auth",
+        name: "Your App Name",
+        description: "Your App Description",
         url: window.location.host,
         icons: [],
       },
     })
-      .then((authClient) => {
-        setClient(authClient);
-        setHasInitialized(true);
+      .then((signClient) => {
+        setClient(signClient);
       })
       .catch((error) => {
         console.error(error);
         toast({
           status: "error",
-          title: "Failed to initialize AuthClient",
+          title: "Failed to initialize SignClient",
         });
       });
   }, [toast]);
 
   useEffect(() => {
-    if (!client) return;
-
-    client.on("auth_response", ({ params }) => {
-      if ("code" in params) {
-        console.error(params);
-        modal.closeModal();
-        return;
-      }
-      if ("error" in params) {
-        console.error(params.error);
-        if ("message" in params.error) {
-          toast({
-            status: "error",
-            title: params.error.message,
-          });
-        }
-        modal.closeModal();
-        return;
-      }
-      toast({
-        status: "success",
-        title: "Auth request successfully approved",
-        colorScheme: "whatsapp",
-      });
-      setAddress(params.result.p.iss.split(":")[4]);
-    });
-  }, [client, toast]);
-
-  const [view, changeView] = useState<"default" | "qr" | "signedIn">("default");
-
-  useEffect(() => {
-    async function handleOpenModal() {
-      if (uri) {
-        await modal.openModal({
-          uri,
-        });
-      }
+    if (uri) {
+      modal.openModal({ uri });
     }
-    handleOpenModal();
   }, [uri]);
 
   useEffect(() => {
     if (address) {
       modal.closeModal();
-      changeView("signedIn");
     }
   }, [address]);
 
   return (
     <Box width="100%" height="100%">
-      {view === "default" && (
-        <DefaultView onClick={onSignIn} hasInitialized={hasInitialized} />
-      )}
-      {view === "signedIn" && <SignedInView address={address} />}
+      <DefaultView onClick={onConnect} hasInitialized={!!client} />
+      {address && <SignedInView address={address} />}
     </Box>
   );
 };
