@@ -15,10 +15,10 @@ if (!projectId) {
 // 2. Configure WalletConnectModal with walletIds
 const modal = new WalletConnectModal({
   projectId,
-  // walletIds: [
-  //   "427efc9169b13a348d98d34e40303546a3e7352d725c06b9356882a26773b1a3", // Your specified wallet ID
-  // ],
-  chains: ["eip155:1329"], // Specify your chain ID
+  walletIds: [
+    "427efc9169b13a348d98d34e40303546a3e7352d725c06b9356882a26773b1a3", // Your specified wallet ID
+  ],
+  chains: ["eip155:1329", "polkadot:91b171bb158e2d3848fa23a9f1c25182"], // Specify your chain ID
   themeMode: "dark", // Optional: 'dark' | 'light'
 });
 
