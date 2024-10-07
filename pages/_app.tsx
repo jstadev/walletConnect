@@ -1,13 +1,11 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { version } from "@walletconnect/auth-client/package.json";
 import {
   ChakraProvider,
   Box,
   Flex,
   Grid,
   GridItem,
-  Image,
 } from "@chakra-ui/react";
 import ThemeSwitcher from "../components/ThemeSwitcher";
 
@@ -24,9 +22,9 @@ function MyApp({ Component, pageProps }: AppProps) {
           "header"
           "main"
           "footer"
-				`}
+        `}
           style={{ height: "100%", width: "100%" }}
-          gridTemplateRows={"50px 3f 20px"}
+          gridTemplateRows={"50px 1fr 20px"}
           gridTemplateColumns={"1fr"}
           paddingY="2em"
         >
@@ -37,7 +35,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               gap="5"
               fontSize={"1.25em"}
             >
-            
+              {/* Header Content (Optional) */}
             </Flex>
           </GridItem>
           <Flex justifyContent="center">

@@ -1,0 +1,142 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Next.js build output
+/.next
+/out
+
+# Production build
+/build
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+/logs
+*.log
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Mac system files
+.DS_Store
+
+# Editor directories and files
+/.vscode
+/.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Yarn
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Optional npm cache directory
+.npm
+
+# Parcel cache
+.cache
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Coverage directory used by testing tools
+/coverage
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env.test
+.env.production
+
+# Next.js static exports
+/out
+
+# Styled component artifacts
+.stylelintrc
+
+# SvelteKit build output
+/.svelte-kit
+
+# Firebase cache
+.firebaserc
+
+# Storybook build output
+/storybook-static
+
+# Ignore .next/cache
+.next/cache
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build artifacts
+dist
+build
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# NPM debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VSCode settings (if any)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Local env files
+.env.local
+
+# MacOS files
+.DS_Store
+
+# Logs and error reports
+*.log
+*.err
+
+# WalletConnect Auth Client storage
+.walletconnect
+
+# Chakra UI cache (if applicable)
+.chakra-cache
+
+# Next.js serverless functions (if using)
+.next/serverless
+
+# React Native files (if any accidentally included)
+.expo
+web-build
+
+# Miscellaneous
+*.sublime-project
+*.sublime-workspace

@@ -1,6 +1,6 @@
 import { Box, useToast } from "@chakra-ui/react";
 import AuthClient, { generateNonce } from "@walletconnect/auth-client";
-import { Web3Modal } from "@web3modal/standalone";
+import { WalletConnectModal } from "@walletconnect/modal";
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import DefaultView from "../views/DefaultView";
@@ -12,14 +12,18 @@ if (!projectId) {
   throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
 }
 
-// 2. Configure web3Modal
-const web3Modal = new Web3Modal({
+// 2. Configure WalletConnectModal with walletIds
+const modal = new WalletConnectModal({
   projectId,
-  walletConnectVersion: 2,
+  // walletIds: [
+  //   "427efc9169b13a348d98d34e40303546a3e7352d725c06b9356882a26773b1a3", // Your specified wallet ID
+  // ],
+  chains: ["eip155:1329"], // Specify your chain ID
+  themeMode: "dark", // Optional: 'dark' | 'light'
 });
 
 const Home: NextPage = () => {
-  const [client, setClient] = useState<AuthClient | null>();
+  const [client, setClient] = useState<AuthClient | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [uri, setUri] = useState<string>("");
   const [address, setAddress] = useState<string>("");
@@ -31,7 +35,7 @@ const Home: NextPage = () => {
       .request({
         aud: window.location.href,
         domain: window.location.hostname.split(".").slice(-2).join("."),
-        chainId: "eip155:1",
+        chainId: "eip155:1329", // Ensure this matches the chain ID in modal config
         type: "eip4361",
         nonce: generateNonce(),
         statement: "Sign in with wallet.",
@@ -40,8 +44,15 @@ const Home: NextPage = () => {
         if (uri) {
           setUri(uri);
         }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast({
+          status: "error",
+          title: "Failed to initiate sign-in request",
+        });
       });
-  }, [client, setUri]);
+  }, [client, setUri, toast]);
 
   useEffect(() => {
     AuthClient.init({
@@ -59,15 +70,23 @@ const Home: NextPage = () => {
         setClient(authClient);
         setHasInitialized(true);
       })
-      .catch(console.error);
-  }, []);
+      .catch((error) => {
+        console.error(error);
+        toast({
+          status: "error",
+          title: "Failed to initialize AuthClient",
+        });
+      });
+  }, [toast]);
 
   useEffect(() => {
     if (!client) return;
+
     client.on("auth_response", ({ params }) => {
       if ("code" in params) {
         console.error(params);
-        return web3Modal.closeModal();
+        modal.closeModal();
+        return;
       }
       if ("error" in params) {
         console.error(params.error);
@@ -77,7 +96,8 @@ const Home: NextPage = () => {
             title: params.error.message,
           });
         }
-        return web3Modal.closeModal();
+        modal.closeModal();
+        return;
       }
       toast({
         status: "success",
@@ -93,9 +113,8 @@ const Home: NextPage = () => {
   useEffect(() => {
     async function handleOpenModal() {
       if (uri) {
-        await web3Modal.openModal({
+        await modal.openModal({
           uri,
-          standaloneChains: ["eip155:1"],
         });
       }
     }
@@ -104,10 +123,10 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (address) {
-      web3Modal.closeModal();
+      modal.closeModal();
       changeView("signedIn");
     }
-  }, [address, changeView]);
+  }, [address]);
 
   return (
     <Box width="100%" height="100%">
